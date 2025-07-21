@@ -1,0 +1,22 @@
+{
+    "timestamp": "2025-07-17T18:36:10Z",
+    "device_type": "water_meter",
+    "device_id": "WM1001",
+    "reading": 15.7,
+    "unit": "L",
+    "battery": 92,
+    "location": "Apt-305",
+    "status": "normal",
+    "anomaly": false
+},
+{
+    "timestamp": "2025-07-17T18:36:15Z",
+    "device_type": "electricity_meter",
+    "device_id": "EM2001",
+    "reading": 3.42,
+    "unit": "kWh",
+    "battery": 85,
+    "location": "Apt-305",
+    "status": "normal",
+    "anomaly": false
+}
