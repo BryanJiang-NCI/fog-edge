@@ -75,5 +75,5 @@
     "cpu": "256",
     "memory": "512",
     "registeredAt": "2025-07-22T17:08:40.955000+01:00",
-    "registeredBy": "arn:aws:iam::762603643140:root",
+    "registeredBy": "arn:aws:iam::762603643140:root"
 }
