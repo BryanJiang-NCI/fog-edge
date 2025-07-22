@@ -78,7 +78,7 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
             task-definition: ${{ steps.task-def.outputs.task-definition }}
-            service: ${{ env.ECS_SERVICE }}
+            service: edge-taskk-service-wx62k7n3
             cluster: ${{ env.ECS_CLUSTER }}
             wait-for-service-stability: true
 
