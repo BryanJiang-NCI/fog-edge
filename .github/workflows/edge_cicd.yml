@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'edge/**'
+      - '.github/workflows/edge_cicd.yml'
 
 jobs:
   checkout:
