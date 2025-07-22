@@ -49,8 +49,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t 762603643140.dkr.ecr.us-east-1.amazonaws.com/fogedge:latest ./edge
-          docker push 762603643140.dkr.ecr.us-east-1.amazonaws.com/fogedge:latest
+          docker build -t 762603643140.dkr.ecr.us-east-1.amazonaws.com/fogedge:edge ./edge
+          docker push 762603643140.dkr.ecr.us-east-1.amazonaws.com/fogedge:edge
 
   deploy:
     runs-on: ubuntu-latest
@@ -72,7 +72,7 @@ jobs:
         with:
             task-definition: edge/ecs-task-def.json
             container-name: edge
-            image: 762603643140.dkr.ecr.us-east-1.amazonaws.com/fogedge:latest
+            image: 762603643140.dkr.ecr.us-east-1.amazonaws.com/fogedge:edge
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
