@@ -79,6 +79,6 @@ jobs:
         with:
             task-definition: ${{ steps.task-def.outputs.task-definition }}
             service: edge-taskk-service-wx62k7n3
-            cluster: ${{ env.ECS_CLUSTER }}
+            cluster: victorious-kangaroo-blxn4f
             wait-for-service-stability: true
 
