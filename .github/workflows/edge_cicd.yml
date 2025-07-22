@@ -69,7 +69,7 @@ jobs:
         with:
             task-definition: edge/ecs-task-def.json
             container-name: nginx
-            image: ${{ steps.build-image.outputs.image }}
+            image: 762603643140.dkr.ecr.us-east-1.amazonaws.com/fogedge:latest
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
