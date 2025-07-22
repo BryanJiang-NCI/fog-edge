@@ -58,7 +58,7 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
-        
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -71,7 +71,7 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
             task-definition: edge/ecs-task-def.json
-            container-name: nginx
+            container-name: edge
             image: 762603643140.dkr.ecr.us-east-1.amazonaws.com/fogedge:latest
 
       - name: Deploy Amazon ECS task definition
