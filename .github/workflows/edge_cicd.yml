@@ -1,0 +1,92 @@
+name: Deploy Edge Node
+
+on:
+  push:
+    paths:
+      - 'edge/**'
+
+jobs:
+  checkout:
+    runs-on: ubuntu-latest
+    outputs:
+      repo: ${{ github.repository }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+  test:
+    runs-on: ubuntu-latest
+    needs: checkout
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Run simple unit test (flask starts)
+        run: |
+          pip install flask
+          python edge/edge_app.py &
+          sleep 3
+          curl -f http://localhost:80 || (echo "Test failed" && exit 1)
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build Docker image
+        run: |
+          docker build -t 762603643140.dkr.ecr.us-east-1.amazonaws.com/fogedge:latest ./edge
+
+  push:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Push Docker image to ECR
+        run: |
+          docker push 762603643140.dkr.ecr.us-east-1.amazonaws.com/fogedge:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: push
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          cluster: ${{ secrets.ECS_CLUSTER_NAME }}
+          service: ${{ secrets.ECS_SERVICE_EDGE }}
+          image: 762603643140.dkr.ecr.us-east-1.amazonaws.com/fogedge:latest
+          wait-for-service-stability: true
