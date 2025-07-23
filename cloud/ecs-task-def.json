@@ -1,5 +1,6 @@
 {
     "taskDefinitionArn": "arn:aws:ecs:us-east-1:762603643140:task-definition/cloud-task:2",
+    "taskRoleArn": "arn:aws:iam::762603643140:role/ecsTaskExecutionRole",
     "containerDefinitions": [
         {
             "name": "cloud",
