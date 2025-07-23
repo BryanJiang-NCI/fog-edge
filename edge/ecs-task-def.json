@@ -1,5 +1,6 @@
 {
     "taskDefinitionArn": "arn:aws:ecs:us-east-1:762603643140:task-definition/edge-taskk:1",
+    "taskRoleArn": "arn:aws:iam::762603643140:role/ecsTaskExecutionRole",
     "containerDefinitions": [
         {
             "name": "edge",
