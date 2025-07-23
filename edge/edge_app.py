@@ -2,6 +2,17 @@
 Author: Bryan x23399937@student.ncirl.ie
 Date: 2025-07-22 17:39:46
 LastEditors: Bryan x23399937@student.ncirl.ie
+LastEditTime: 2025-07-23 16:57:21
+FilePath: /FEC-CA/edge/edge_app.py
+Description:
+
+Copyright (c) 2025 by Bryan Jiang, All Rights Reserved.
+"""
+
+"""
+Author: Bryan x23399937@student.ncirl.ie
+Date: 2025-07-22 17:39:46
+LastEditors: Bryan x23399937@student.ncirl.ie
 LastEditTime: 2025-07-22 17:39:48
 FilePath: /FEC-CA/edge/edge_app.py
 Description:
@@ -18,7 +29,7 @@ app = Flask(__name__)
 
 # Kinesis 配置
 REGION = "us-east-1"  # 根据实际调整
-STREAM_NAME = "iot-data-stream"  # 替换为你创建的 Stream 名称
+STREAM_NAME = "fog-edge"  # 替换为你创建的 Stream 名称
 kinesis = boto3.client("kinesis", region_name=REGION)
 
 
