@@ -81,7 +81,9 @@ def metrics_upload():
         }
         # 2. 同步上传到云端服务
         try:
-            resp = request.post("http://54.172.192.216", json=processed, timeout=5)
+            resp = request.post(
+                "http://54.172.192.216/upload", json=processed, timeout=5
+            )
             print(f"[Edge][Metrics] Synced to cloud: {resp.status_code} {resp.text}")
         except Exception as ex:
             print(f"[Edge][Metrics] Sync to cloud failed: {ex}")
