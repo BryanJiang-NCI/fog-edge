@@ -13,6 +13,7 @@ from flask import Flask, request, jsonify
 import boto3
 import json
 import time
+import requests
 
 app = Flask(__name__)
 
@@ -81,7 +82,7 @@ def metrics_upload():
         }
         # 2. 同步上传到云端服务
         try:
-            resp = request.post(
+            resp = requests.post(
                 "http://54.172.192.216/upload", json=processed, timeout=5
             )
             print(f"[Edge][Metrics] Synced to cloud: {resp.status_code} {resp.text}")
