@@ -41,17 +41,7 @@ def upload():
         print(f"[Edge] Received raw data: {raw}")
 
         # ======= 轻量处理逻辑 =======
-        processed = {
-            "device_id": raw.get("device_id", "unknown"),
-            "reading": raw.get("reading"),
-            "unit": raw.get("unit", "L"),
-            "battery": raw.get("battery", -1),
-            "status": raw.get("status", "unknown"),
-            "timestamp": raw.get("timestamp", time.time()),
-            "anomaly": is_anomaly(raw.get("reading")),
-            "location": "Apt-305",
-            "ingest_time": time.time(),
-        }
+        processed = process_structure(raw)
 
         # ======= 上传到 Kinesis =======
         response = kinesis.put_record(
@@ -66,6 +56,22 @@ def upload():
     except Exception as e:
         print(f"[Edge] Error: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
+
+
+def process_structure(raw) -> dict:
+    processed = {
+        "device_type": raw.get("device_type", "unknown"),
+        "device_id": raw.get("device_id", "unknown"),
+        "reading": raw.get("reading"),
+        "unit": raw.get("unit", "L"),
+        "battery": raw.get("battery", -1),
+        "status": raw.get("status", "unknown"),
+        "timestamp": raw.get("timestamp", time.time()),
+        "anomaly": is_anomaly(raw.get("reading")),
+        "location": "Dublin",
+        "ingest_time": time.time(),
+    }
+    return processed
 
 
 def is_anomaly(reading):
