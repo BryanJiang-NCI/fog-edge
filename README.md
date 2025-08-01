@@ -2,7 +2,7 @@
  * @Author: Bryan x23399937@student.ncirl.ie
  * @Date: 2025-07-21 21:37:35
  * @LastEditors: Bryan x23399937@student.ncirl.ie
- * @LastEditTime: 2025-08-01 13:48:28
+ * @LastEditTime: 2025-08-01 15:07:08
  * @FilePath: /FEC-CA/README.md
  * @Description: 
  * CQRNTnnfjs723&-
@@ -65,3 +65,20 @@ aws ecs describe-task-definition \
   --task-definition edge-taskk \
   --query "taskDefinition" \
   --output json > ecs-task-def.json
+
+## AWS Redshift sync table
+```
+CREATE TABLE dev.public.fog (
+  device_type  VARCHAR(50),
+  device_id    VARCHAR(64),
+  reading      BIGINT,
+  unit         VARCHAR(10),
+  battery      SMALLINT,
+  status       VARCHAR(32),
+  "timestamp"  VARCHAR(32),
+  anomaly      BOOLEAN,
+  location     VARCHAR(100),
+  ingest_time  DOUBLE PRECISION
+)
+
+```
