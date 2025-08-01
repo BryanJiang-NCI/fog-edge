@@ -21,24 +21,25 @@ import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Storage;
 import org.fog.entities.FogDeviceCharacteristics;
 import org.fog.policy.AppModuleAllocationPolicy;
-import org.fog.entities.Tuple;
-import org.fog.application.AppEdge;
 import org.cloudbus.cloudsim.Log;
+import org.fog.application.AppEdge;
+import org.fog.entities.Tuple;
+import org.fog.smart.MyFogBroker;
+
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-
 import java.util.*;
-// 1s7yqb8UWL
+
 public class SmartMeter {
 
     static List<FogDevice> fogDevices = new ArrayList<>();
-    static Map<String, Integer> appModulesMap = new HashMap<>();
     static final String APPLICATION_ID = "SmartMeterApp";
 
     public static void main(String[] args) {
-        Log.printLine("Starting Smart Meter Demo...");
+        Log.printLine("Starting Smart Meter Simulation...");
+
         try {
             int num_user = 1;
             Calendar calendar = Calendar.getInstance();
@@ -46,66 +47,46 @@ public class SmartMeter {
 
             CloudSim.init(num_user, calendar, trace_flag);
 
-            // 1. 创建Broker
-            FogBroker broker = new FogBroker("broker");
+            // 1. create broker
+            MyFogBroker broker = new MyFogBroker("broker");
 
-            // 2. 创建各节点
-            FogDevice edgeNode = createFogDevice("Edge-Node", 5000, 4000, 10000, 10000, 0, 0.01, 100.0, 100.0);
-            fogDevices.add(edgeNode);
-
-            FogDevice gateway = createFogDevice("Gateway", 2000, 1000, 1000, 1000, 1, 0.0, 100.0, 100.0);
+            // 2. create edge gateway
+            FogDevice gateway = createFogDevice("Gateway", 2000, 100000, 10000, 10000, 1, 0.0, 100.0, 100.0);
             fogDevices.add(gateway);
 
-            // 指定层级关系
-            gateway.setParentId(edgeNode.getId());
-
-            // 3. 设备（传感器）
-            Sensor waterMeter = new Sensor("WaterMeter", "WATER_SENSOR", broker.getId(), APPLICATION_ID, new DeterministicDistribution(30.0));
-            Sensor electricityMeter = new Sensor("ElectricityMeter", "ELEC_SENSOR", broker.getId(), APPLICATION_ID, new DeterministicDistribution(30.0));
+            // 3. create two type of sensor: water and electricity meters
+            Sensor waterMeter = new Sensor("WaterMeter", "WATER_SENSOR", broker.getId(), APPLICATION_ID, new DeterministicDistribution(300.0));
+            Sensor electricityMeter = new Sensor("ElectricityMeter", "ELEC_SENSOR", broker.getId(), APPLICATION_ID, new DeterministicDistribution(300.0));
+            
+            // 4. set the device id
             waterMeter.setGatewayDeviceId(gateway.getId());
             electricityMeter.setGatewayDeviceId(gateway.getId());
-            waterMeter.setLatency(2.0);
-            electricityMeter.setLatency(2.0);
+            
+            // 5. set the latency for sensors
+            waterMeter.setLatency(1.0);
+            electricityMeter.setLatency(1.0);
 
-            // 4. 应用和模块
+            // 6. add application and modules
             Application app = createApp(broker.getId());
-
-            appModulesMap.put("WaterAppModule", gateway.getId());
-            appModulesMap.put("ElecAppModule", gateway.getId());
-            appModulesMap.put("EdgeAnalysis", edgeNode.getId());
-
             waterMeter.setApp(app);
             electricityMeter.setApp(app);
 
+            // 7. add mapping relationship
             ModuleMapping moduleMapping = ModuleMapping.createModuleMapping();
             moduleMapping.addModuleToDevice("WaterAppModule", "Gateway");
             moduleMapping.addModuleToDevice("ElecAppModule", "Gateway");
-            moduleMapping.addModuleToDevice("EdgeAnalysis", "Edge-Node");
 
-            // 5. 控制器
+            // 8. controller
             Controller controller = new Controller("controller", fogDevices, new ArrayList<>(), new ArrayList<>());
             controller.submitApplication(app, 0, new ModulePlacementMapping(fogDevices, app, moduleMapping));
+            
+            // 9. simulate data the gateway upload data to the edge
+            CloudSim.send(broker.getId(), broker.getId(), 2000, MyFogBroker.UPLOAD_DATA_NOW, null);
 
-            System.out.println("Simulation started...");
+            System.out.println("------for edge ca project-------");
             CloudSim.startSimulation();
-            CloudSim.stopSimulation();
-            System.out.println("Simulation finished.");
 
-            String examplePayload = "{"
-            	    + "\"timestamp\":\"" + System.currentTimeMillis() + "\","
-            	    + "\"device_type\":\"water_meter\","
-            	    + "\"device_id\":\"WM1001\","
-            	    + "\"reading\":15.7,"
-            	    + "\"unit\":\"L\","
-            	    + "\"battery\":92,"
-            	    + "\"location\":\"Apt-305\","
-            	    + "\"status\":\"normal\","
-            	    + "\"anomaly\":false"
-            	    + "}";
-
-            	// 实际应用时可循环、批量、从仿真输出构造 payload
-            httpUploadToAWS(examplePayload);
-            System.out.println("Smart Meter Demo finished!");
+            System.out.println("Smart Meter finished!");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -113,7 +94,7 @@ public class SmartMeter {
         }
     }
 
-    // FogDevice 工厂
+    // create fog device method
     private static FogDevice createFogDevice(String nodeName, long mips, int ram, long upBw, long downBw, int level,
                                              double ratePerMips, double busyPower, double idlePower) {
         List<Pe> peList = new ArrayList<>();
@@ -152,7 +133,6 @@ public class SmartMeter {
         );
 
         FogDevice device = null;
-
         try {
             device = new FogDevice(
                     nodeName,
@@ -172,43 +152,13 @@ public class SmartMeter {
         return device;
     }
 
-    // 应用定义
+    // applciation define include sensor and edge gateway
     private static Application createApp(int userId) {
         Application application = Application.createApplication(APPLICATION_ID, userId);
-        application.addAppModule("WaterAppModule", 1000);
-        application.addAppModule("ElecAppModule", 1000);
-        application.addAppModule("EdgeAnalysis", 5000);
-
-        // 数据流配置：传感器->网关->边缘节点
-        application.addAppEdge("WATER_SENSOR", "WaterAppModule", 100000, 20000, "WATER_SENSOR", Tuple.UP, AppEdge.SENSOR);
-        application.addAppEdge("ELEC_SENSOR", "ElecAppModule", 100000, 20000, "ELEC_SENSOR", Tuple.UP, AppEdge.SENSOR);
-        application.addAppEdge("WaterAppModule", "EdgeAnalysis", 1000, 200, "WATER_AGG", Tuple.UP, AppEdge.MODULE);
-        application.addAppEdge("ElecAppModule", "EdgeAnalysis", 1000, 200, "ELEC_AGG", Tuple.UP, AppEdge.MODULE);
-
-        // 可以在这里继续定义数据返回/控制流
+        application.addAppModule("WaterAppModule", 256);
+        application.addAppModule("ElecAppModule", 256);
+        application.addAppEdge("WATER_SENSOR", "WaterAppModule", 100, 100, "WATER_SENSOR", Tuple.UP, AppEdge.SENSOR);
+        application.addAppEdge("ELEC_SENSOR", "ElecAppModule", 100, 100, "ELEC_SENSOR", Tuple.UP, AppEdge.SENSOR);
         return application;
     }
-    
-    // 在 SmartMeter 类内部加
-    public static void httpUploadToAWS(String jsonPayload) {
-        try {
-            String endpoint = "https://your-aws-endpoint.com/iot/upload"; // 改成你的API地址
-            URL url = new URL(endpoint);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json; utf-8");
-            conn.setDoOutput(true);
-
-            try(OutputStream os = conn.getOutputStream()) {
-                byte[] input = jsonPayload.getBytes(StandardCharsets.UTF_8);
-                os.write(input, 0, input.length);
-            }
-            int code = conn.getResponseCode();
-            System.out.println("网关模拟数据已上传，HTTP返回状态：" + code);
-            conn.disconnect();
-        } catch (Exception ex) {
-            System.err.println("上传异常：" + ex.getMessage());
-        }
-    }
-
 }

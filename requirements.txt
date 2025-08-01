@@ -1,0 +1,4 @@
+boto3==1.38.41
+pyspark==4.0.0
+requests==2.32.3
+Flask==3.1.1

@@ -2,17 +2,6 @@
 Author: Bryan x23399937@student.ncirl.ie
 Date: 2025-07-22 17:40:21
 LastEditors: Bryan x23399937@student.ncirl.ie
-LastEditTime: 2025-07-24 21:53:36
-FilePath: /FEC-CA/cloud/cloud_app.py
-Description:
-
-Copyright (c) 2025 by Bryan Jiang, All Rights Reserved.
-"""
-
-"""
-Author: Bryan x23399937@student.ncirl.ie
-Date: 2025-07-22 17:40:21
-LastEditors: Bryan x23399937@student.ncirl.ie
 LastEditTime: 2025-07-22 19:45:36
 FilePath: /FEC-CA/cloud/cloud_app.py
 Description:
@@ -27,9 +16,9 @@ import json
 
 app = Flask(__name__)
 
-# Kinesis 配置
-REGION = "us-east-1"  # 根据实际调整
-STREAM_NAME = "fog-edge"  # 替换为你创建的 Stream 名称
+# Kinesis config
+REGION = "us-east-1"
+STREAM_NAME = "fog-edge"
 kinesis = boto3.client("kinesis", region_name=REGION)
 
 
@@ -51,10 +40,10 @@ def upload():
         raw = request.get_json()
         print(f"[Edge] Received raw data: {raw}")
 
-        # ======= 轻量处理逻辑 =======
+        # ======= lightweight preprocessing =======
         processed = process_structure(raw)
 
-        # ======= 上传到 Kinesis =======
+        # ======= upload data to Kinesis =======
         response = kinesis.put_record(
             StreamName=STREAM_NAME,
             Data=json.dumps(processed),
@@ -85,10 +74,11 @@ def process_structure(raw) -> dict:
     return processed
 
 
+# checking is anomaly
 def is_anomaly(reading):
     try:
         reading = float(reading)
-        return reading < 0 or reading > 1000  # 示例阈值
+        return reading < 0 or reading > 1000
     except:
         return True
 

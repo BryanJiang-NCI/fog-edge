@@ -17,27 +17,29 @@ import requests
 
 app = Flask(__name__)
 
-# Kinesis 配置
+# kinesis config
 REGION = "us-east-1"
 STREAM_NAME = "fog-edge"
 kinesis = boto3.client("kinesis", region_name=REGION)
 
 
+# demo api
 @app.route("/", methods=["GET"])
 def index():
     return "Edge Node is running."
 
 
+# edge layer upload data to kinesis
 @app.route("/upload", methods=["POST"])
 def upload():
     try:
         raw = request.get_json()
         print(f"[Edge] Received raw data: {raw}")
 
-        # ======= 轻量处理逻辑 =======
+        # ======= lightweight preprocess =======
         processed = process_structure(raw)
 
-        # ======= 上传到 Kinesis =======
+        # ======= upload Kinesis =======
         response = kinesis.put_record(
             StreamName=STREAM_NAME,
             Data=json.dumps(processed),
@@ -52,15 +54,15 @@ def upload():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
+# upload data to cloud layer
 @app.route("/metrics/upload", methods=["POST"])
 def metrics_upload():
     try:
         raw = request.get_json()
         print(f"[Edge] Received raw data: {raw}")
 
-        # ======= 轻量处理逻辑 =======
         processed = process_structure(raw)
-        # 2. 同步上传到云端服务
+        # upload data to cloud
         try:
             resp = requests.post(
                 "http://54.172.192.216/upload", json=processed, timeout=5
@@ -76,6 +78,7 @@ def metrics_upload():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
+# processed dict
 def process_structure(raw) -> dict:
     processed = {
         "device_type": raw.get("device_type", "unknown"),
@@ -92,10 +95,11 @@ def process_structure(raw) -> dict:
     return processed
 
 
+# checking anomaly info
 def is_anomaly(reading):
     try:
         reading = float(reading)
-        return reading < 0 or reading > 1000  # 示例阈值
+        return reading < 0 or reading > 1000
     except:
         return True
 

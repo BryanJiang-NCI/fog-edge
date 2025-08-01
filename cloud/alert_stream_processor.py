@@ -20,10 +20,10 @@ from pyspark.sql.types import (
     BooleanType,
 )
 
-# 初始化 Spark Session（用于 EMR Serverless）
+# init Spark Session
 spark = SparkSession.builder.appName("FogEdgeAlertProcessor").getOrCreate()
 
-# 从 Kinesis 实时读取数据
+# real time read data from kinesis
 raw_df = (
     spark.readStream.format("aws-kinesis")
     .option("kinesis.streamName", "fog-edge")
@@ -34,7 +34,7 @@ raw_df = (
     .load()
 )
 
-# 定义输入数据的 JSON schema
+# define input data JSON schema
 schema = (
     StructType()
     .add("timestamp", LongType())
@@ -48,17 +48,17 @@ schema = (
     .add("anomaly", BooleanType())
 )
 
-# 解码 JSON 数据
+# mapping json data
 json_df = (
     raw_df.selectExpr("CAST(data AS STRING) as json_str")
     .select(from_json(col("json_str"), schema).alias("data"))
     .select("data.*")
 )
 
-# 过滤告警条件：reading > 1000
+# filter error alert reading > 1000
 alert_df = json_df.filter(col("reading") > 1000)
 
-# 输出到控制台（可换成 S3、Redshift、OpenSearch）
+# print data
 query = (
     alert_df.writeStream.format("console")
     .option("truncate", False)
@@ -67,5 +67,4 @@ query = (
     .start()
 )
 
-# 等待终止
 query.awaitTermination()
