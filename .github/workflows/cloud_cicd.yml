@@ -78,7 +78,7 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
             task-definition: ${{ steps.task-def.outputs.task-definition }}
-            service: cloud-task-service-4k7lvzax 
-            cluster: victorious-kangaroo-blxn4f
+            service: cloud-task-service-mg21lm31
+            cluster: intrepid-frog-b0ysej
             wait-for-service-stability: true
 
