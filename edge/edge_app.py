@@ -4,7 +4,7 @@ Date: 2025-07-22 17:39:46
 LastEditors: Bryan x23399937@student.ncirl.ie
 LastEditTime: 2025-07-22 17:39:48
 FilePath: /FEC-CA/edge/edge_app.py
-Description:ss
+Description: test
 
 Copyright (c) 2025 by Bryan Jiang, All Rights Reserved.
 """
