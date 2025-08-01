@@ -3,7 +3,7 @@
  # @Author: Bryan x23399937@student.ncirl.ie
  # @Date: 2025-07-02 19:15:52
  # @LastEditors: Bryan x23399937@student.ncirl.ie
- # @LastEditTime: 2025-07-24 19:07:07
+ # @LastEditTime: 2025-08-01 13:57:31
  # @FilePath: /FEC-CA/spark.sh
  # @Description: 
  # 
@@ -12,7 +12,7 @@
 # submit_job.sh
 
 # 加载环境变量或参数（可从 .env 或命令行传入）
-APP_ID="00fu9jvq8s58u209"        # 替换为你的 Application ID
+APP_ID="00fufs9kai95v709"        # 替换为你的 Application ID
 JOB_ROLE="arn:aws:iam::762603643140:role/service-role/AmazonEMRStudio_RuntimeRole_1751301346337"
 S3_BUCKET="fog-edge"
 REGION="us-east-1"
