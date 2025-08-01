@@ -2,7 +2,7 @@
  * @Author: Bryan x23399937@student.ncirl.ie
  * @Date: 2025-07-21 21:37:35
  * @LastEditors: Bryan x23399937@student.ncirl.ie
- * @LastEditTime: 2025-08-01 10:22:42
+ * @LastEditTime: 2025-08-01 10:24:06
  * @FilePath: /FEC-CA/README.md
  * @Description: 
  * 
@@ -40,9 +40,11 @@ A smart meter IOT system simulation source code.
 ## running step
 ### sensor and gateway
 put the iFogSim code like shown below in the iFogSim folder
+```
 ├── /org.for.smart/      
     ├── MyFogBroker.java  
-    ├── Smart.java  
+    ├── Smart.java
+```
 
 ### edge and cloud application
 ```
